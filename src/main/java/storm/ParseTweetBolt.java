@@ -66,10 +66,12 @@ public class ParseTweetBolt extends BaseRichBolt
   {
     // get the 1st column 'tweet' from tuple
     String tweet = tuple.getStringByField("tweet").split("DELIMITER")[0];
+    /*
     if(!tweet.contains("#food"))
     {
       return;
     }
+    */
     double latitude = Double.parseDouble(tuple.getStringByField("tweet").split("DELIMITER")[1].split(",")[0]);
     double longitude = Double.parseDouble(tuple.getStringByField("tweet").split("DELIMITER")[1].split(",")[1]);
     String county_id = clookup.getCountyCodeByGeo(latitude, longitude);

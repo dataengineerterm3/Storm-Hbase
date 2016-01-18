@@ -32,7 +32,7 @@ var addTweet = function(tweetContent){
 
 var parseTweet = function(){
   var tweet = {};
-  tweet.user = "test";
+  //tweet.user = randomElement(users);
   tweet.message = tweetContent;
   tweet.created_at = new Date();
   addTweet(tweet);
