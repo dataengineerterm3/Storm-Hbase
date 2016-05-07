@@ -1,5 +1,6 @@
 package storm;
 
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -23,15 +24,15 @@ public class HBaseUpdateBolt extends BaseRichBolt
     private static final Logger LOG = Logger.getLogger(HBaseUpdateBolt.class);
     
     private byte[] HBASE_CF;
+    private final byte[] col = Bytes.toBytes("testcf");
     private final byte[] COL_CITY = Bytes.toBytes("city");
     private final byte[] COL_STATE = Bytes.toBytes("state");
     private final byte[] COL_COUNTRY = Bytes.toBytes("country");
-    private final byte[] WORD = Bytes.toBytes("");
     
     private OutputCollector collector;
     private HTableFactoryInterface tableFactory;
     private HTableInterface eventsTable;
-    
+
     public HBaseUpdateBolt(byte[] habse_cf, HTableFactoryInterface tableFactory) 
     {
     	this.tableFactory = tableFactory;
@@ -49,10 +50,11 @@ public class HBaseUpdateBolt extends BaseRichBolt
     public void execute(Tuple tuple)
     {
         //String[] oneLine = tuple.getString(0).split("\t");
-    	String[] oneLine = tuple.getString(0).split("\t");
+    	String[] oneLine = tuple.getString(0).split(",");
         try 
         {
-            Put put = constructRow(oneLine);
+            Put put = new Put(Bytes.toBytes("row"));
+            put.add(HBASE_CF, col, Bytes.toBytes("test"));
             this.eventsTable.put(put);
         } 
         catch (Exception e) 
@@ -68,23 +70,35 @@ public class HBaseUpdateBolt extends BaseRichBolt
     private Put constructRow(String[] oneLine) 
     {
     	String rowKey = oneLine[0].trim();
-    	String words = oneLine.toString();
     	LOG.info("About to add row: " + rowKey);
     	LOG.info("Number of lines : " + oneLine.length);
     	LOG.info("First column value: " + oneLine[1]);
     	
-        Put put = new Put(Bytes.toBytes("sentence"));
-        put.add(HBASE_CF, WORD, Bytes.toBytes(words));
-        /*
+        Put put = new Put(Bytes.toBytes(rowKey));
+        
         for (int i = 1; i < oneLine.length; i++)
         {
         	String subLine[] = oneLine[i].split(":");
         	LOG.info("column name: " + subLine[0]);
         	LOG.info("column value: " + subLine[1]);
         	
-        	put.add(HBASE_CF, WORD, Bytes.toBytes(subLine[1].trim()));
+        	if (subLine[0].trim().equals("city"))
+        	{
+        		LOG.info("About to add: " + subLine[1]);
+        		put.add(HBASE_CF, COL_CITY, Bytes.toBytes(subLine[1].trim()));
+        	}
+        	if (subLine[0].trim().equals("state"))
+        	{
+        		LOG.info("About to add: " + subLine[1]);
+        		put.add(HBASE_CF, COL_STATE, Bytes.toBytes(subLine[1].trim()));
+        	}
+        	if (subLine[0].trim().equals("country"))
+        	{
+        		LOG.info("About to add: " + subLine[1]);
+        		put.add(HBASE_CF, COL_COUNTRY, Bytes.toBytes(subLine[1].trim()));
+        	}
         }
-        */
+
         return put;
     }
 
@@ -115,8 +129,8 @@ public class HBaseUpdateBolt extends BaseRichBolt
     }
     
     public static HBaseUpdateBolt make(Properties topologyConfig)
-    {   
-        byte[] 	habse_cf = Bytes.toBytes(topologyConfig.getProperty("habse_cf"));
+    {
+        byte[] 	habse_cf = Bytes.toBytes(topologyConfig.getProperty("hbase_cf"));
         return new HBaseUpdateBolt(habse_cf, new HTableFactory(topologyConfig));
     }
 }

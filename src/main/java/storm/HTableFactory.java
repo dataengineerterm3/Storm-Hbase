@@ -1,5 +1,6 @@
 package storm;
 
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
@@ -63,10 +64,15 @@ class HTableFactory implements HTableFactoryInterface, Serializable
         String CF_EVENTS_TABLE_STR = topologyConfig.getProperty("habse_cf");
         
         Configuration hConf = HBaseConfiguration.create();
-        hConf.addResource(new Path(hbaseSiteConfig));
-        hConf.addResource(new Path(hdfsSiteConfig));
-        hConf.addResource(new Path(hdfsCoreSiteConfig));
-
+        hConf.clear();
+        //hConf.addResource(new Path(hbaseSiteConfig));
+        //hConf.addResource(new Path(hdfsSiteConfig));
+        //hConf.addResource(new Path(hdfsCoreSiteConfig));
+        //hConf.set("hadoop.socks.server", "127.0.0.1:1099");
+        //hConf.set("hadoop.rpc.socket.factory.class.default", "org.apache.hadoop.net.SocksSocketFactory");
+        hConf.set("hbase.zookeeper.quorum", "localhost");
+        hConf.set("hbase.zookeeper.property.clientport", "2181");
+        hConf.set("zookeeper.znode.parent", "/hbase-unsecure");
         HTableInterface table;
         try
         {
@@ -123,10 +129,12 @@ class HTableFactory implements HTableFactoryInterface, Serializable
         String hbase_table_name = topologyConfig.getProperty("hbase_table");
         
         Configuration hConf = HBaseConfiguration.create();
+        hConf.set("hbase.zookeeper.quorum", "quickstart.cloudera");
+        hConf.set("hbase.zookeeper.property.clientPort", "2181");
+        
         hConf.addResource(new Path(hbaseSiteConfig));
         hConf.addResource(new Path(hdfsSiteConfig));
         hConf.addResource(new Path(hdfsCoreSiteConfig));
-
         HTableInterface table;
         try
         {

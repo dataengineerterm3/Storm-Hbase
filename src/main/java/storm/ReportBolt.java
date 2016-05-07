@@ -135,5 +135,10 @@ public class ReportBolt extends BaseRichBolt
   public void declareOutputFields(OutputFieldsDeclarer declarer)
   {
     // nothing to add - since it is the final bolt
+  	declarer.declare(new Fields("county_id", 
+				"tweet",
+				"sentiment",
+				"url"
+  			));
   }
 }
